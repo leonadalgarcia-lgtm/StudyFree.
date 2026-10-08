@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#2563eb">
+<title>StudyFree</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#68738a;--primary:#2563eb;--primary2:#1d4ed8;--line:#e4e8f0;--good:#16803c;--bad:#c62828;--shadow:0 8px 28px rgba(25,40,70,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.app{display:flex;min-height:100vh}
+aside{width:240px;background:#fff;border-right:1px solid var(--line);padding:22px 14px;position:sticky;top:0;height:100vh}
+.logo{font-size:25px;font-weight:800;padding:0 12px 22px;color:var(--primary)}.logo span{color:#111827}
+nav button{width:100%;border:0;background:transparent;text-align:left;padding:11px 12px;border-radius:10px;margin:2px 0;color:#445066}
+nav button.active,nav button:hover{background:#edf4ff;color:var(--primary);font-weight:700}
+main{flex:1;padding:28px;max-width:1250px;margin:auto;width:100%}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}.top h1{margin:0;font-size:28px}.pill{background:#eaf2ff;color:var(--primary);padding:7px 11px;border-radius:999px;font-size:13px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}.stat{font-size:28px;font-weight:800;margin-top:8px}.muted{color:var(--muted);font-size:14px}
+h2{margin:0 0 14px}h3{margin:0 0 8px}.section{margin-top:22px}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;background:var(--primary);color:#fff}.btn:hover{background:var(--primary2)}.btn.secondary{background:#eef2f7;color:#263247}.btn.danger{background:#feecec;color:#b42318}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+input,select,textarea{width:100%;border:1px solid #d8deea;border-radius:10px;padding:10px 12px;background:#fff;color:var(--text);margin-top:6px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:12px}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.item{padding:13px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}
+.exam-card{display:flex;justify-content:space-between;align-items:center;gap:15px}.tag{display:inline-block;padding:5px 8px;border-radius:7px;background:#f0f3f8;color:#566178;font-size:12px;font-weight:700;margin:2px}
+.progress{height:9px;background:#e9edf4;border-radius:99px;overflow:hidden;margin:9px 0}.progress>div{height:100%;background:var(--primary);width:0}
+.question{font-size:20px;font-weight:750;line-height:1.4;margin:18px 0}.option{display:block;width:100%;text-align:left;border:1px solid var(--line);background:#fff;padding:13px;border-radius:10px;margin:8px 0}.option:hover{border-color:#9bbcf8;background:#f7faff}.option.correct{border-color:#65b981;background:#effbf3}.option.wrong{border-color:#ef7777;background:#fff2f2}
+.feedback{padding:14px;border-radius:12px;background:#f5f7fb;margin-top:14px}.hide{display:none}
+.mobilebar{display:none}.small{font-size:12px}.empty{padding:28px;text-align:center;color:var(--muted)}
+@media(max-width:900px){aside{display:none}.mobilebar{display:flex;position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:12px;gap:8px;overflow:auto}.mobilebar button{white-space:nowrap;border:0;background:#eef2f7;padding:9px;border-radius:9px}.grid{grid-template-columns:repeat(2,1fr)}.grid2,.formgrid{grid-template-columns:1fr}main{padding:18px}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}.exam-card{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="mobilebar" id="mobileNav"></div>
+<div class="app">
+<aside>
+<div class="logo">Study<span>Free</span></div>
+<nav id="nav"></nav>
+</aside>
+<main id="app"></main>
+</div>
+<script>
+const KEY="studyfree_public_v1";
+const exams=[
+["Colegio","ESO / Bachillerato","Repaso escolar personalizado"],
+["Cambridge","B2 First","Reading, Use of English, Writing y más"],
+["Cambridge","C1 Advanced","Preparación C1"],
+["Cambridge","C2 Proficiency","Preparación C2"],
+["SAT","SAT","Práctica de Reading & Writing y Math"],
+["TOEFL","TOEFL iBT","Práctica de inglés académico"],
+["IELTS","IELTS","Academic / General"],
+["ACT","ACT","Preparación general"],
+["AP Exams","AP Chemistry","Química avanzada"],
+["AP Exams","AP Calculus","Cálculo avanzado"],
+["GRE","GRE","Verbal, Quant y Writing"],
+["GMAT","GMAT","Preparación de admisión"],
+["DELE","DELE","Español"],
+["DELF/DALF","DELF / DALF","Francés"],
+["Goethe","Goethe-Zertifikat","Alemán"],
+["Olimpiadas","Olimpiada de Química","Preguntas de nivel avanzado"],
+["Olimpiadas","Olimpiada de Matemáticas","Problemas matemáticos"],
+["Programación","Programación / CS","Lógica y fundamentos"],
+["Personalizado","Mi propio examen","Crea tu formato"]
+];
+const demoQuestions=[
+ {q:"¿Cuál es la fórmula química del agua?",opts:["CO₂","H₂O","O₂","NaCl"],a:1,topic:"Química",why:"El agua está formada por dos átomos de hidrógeno y uno de oxígeno.",tip:"Cuando veas H₂O, recuerda: H₂ + O = agua."},
+ {q:"¿Cuánto es 3² + 4²?",opts:["12","20","25","49"],a:2,topic:"Matemáticas",why:"3²=9 y 4²=16; 9+16=25.",tip:"Calcula primero cada potencia y después suma."},
+ {q:"Choose the correct option: 'She ___ to school every day.'",opts:["go","goes","going","gone"],a:1,topic:"English",why:"Con he/she/it en present simple, el verbo lleva -s.",tip:"He/She/It → normalmente añade -s en present simple."},
+ {q:"¿Cuál es el objetivo principal de una hipótesis científica?",opts:["Demostrar algo sin pruebas","Proponer una explicación que pueda comprobarse","Evitar experimentos","Dar una opinión"],a:1,topic:"Ciencia",why:"Una hipótesis es una explicación provisional que puede ponerse a prueba.",tip:"Piensa: hipótesis = explicación comprobable."}
+];
+let state=JSON.parse(localStorage.getItem(KEY)||"null")||{
+ view:"home",subjects:["Matemáticas","Inglés","Química"],notes:[],goals:[],results:[],exam:null,answers:[],qIndex:0
+};
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+const navItems=[["home","Inicio"],["subjects","Mis asignaturas"],["notes","Mis apuntes"],["exams","Exámenes"],["create","Crear examen"],["progress","Mi progreso"],["ai","StudyFree AI"]];
+function nav(){return navItems.map(x=>`<button class="${state.view===x[0]?"active":""}" onclick="go('${x[0]}')">${x[1]}</button>`).join("")}
+function renderNav(){document.getElementById("nav").innerHTML=nav();document.getElementById("mobileNav").innerHTML=navItems.map(x=>`<button onclick="go('${x[0]}')">${x[1]}</button>`).join("")}
+function go(v){state.view=v;save();render()}
+function render(){renderNav();const root=document.getElementById("app");const pages={home,subjects,notes,exams,create,progress,ai,exam,result};root.innerHTML=(pages[state.view]||home)();window.scrollTo(0,0)}
+function top(title,sub=""){return `<div class="top"><div><h1>${title}</h1>${sub?`<div class="muted">${sub}</div>`:""}</div><span class="pill">100% gratis</span></div>`}
+function home(){
+ const avg=state.results.length?Math.round(state.results.reduce((a,r)=>a+r.pct,0)/state.results.length):0;
+ return top("Hola 👋","Tu espacio para estudiar, practicar y mejorar.")+
+ `<div class="grid">
+  <div class="card"><div class="muted">Asignaturas</div><div class="stat">${state.subjects.length}</div></div>
+  <div class="card"><div class="muted">Exámenes hechos</div><div class="stat">${state.results.length}</div></div>
+  <div class="card"><div class="muted">Media de resultados</div><div class="stat">${avg}%</div></div>
+  <div class="card"><div class="muted">Objetivos</div><div class="stat">${state.goals.length}</div></div>
+ </div>
+ <div class="section grid2">
+  <div class="card"><h2>🎯 ¿Qué quieres conseguir?</h2><p class="muted">Elige asignaturas, examen y nota objetivo. StudyFree puede organizar tu práctica.</p><div class="actions"><button class="btn" onclick="go('create')">Crear objetivo / examen</button><button class="btn secondary" onclick="go('subjects')">Elegir asignaturas</button></div></div>
+  <div class="card"><h2>⚡ Empieza ahora</h2><p class="muted">Haz un examen rápido con preguntas de demostración.</p><button class="btn" onclick="startExam('Colegio','Repaso rápido',10)">Empezar</button></div>
+ </div>
+ <div class="section card"><h2>Cómo funciona</h2><div class="grid2">
+ <div><b>1. Elige</b><p class="muted">Asignaturas, examen y objetivo.</p></div><div><b>2. Practica</b><p class="muted">Haz preguntas y simulaciones.</p></div>
+ <div><b>3. Corrige</b><p class="muted">Descubre en qué temas fallas.</p></div><div><b>4. Mejora</b><p class="muted">Recibe explicaciones y trucos para volver a intentarlo.</p></div></div></div>`;
+}
+function subjects(){
+ return top("Mis asignaturas","Selecciona las materias que quieres estudiar.")+
+ `<div class="card"><div class="formgrid"><label>Nueva asignatura<input id="newSub" placeholder="Ej. Física"></label><div style="align-self:end"><button class="btn" onclick="addSub()">Añadir</button></div></div>
+ <div>${state.subjects.map((s,i)=>`<span class="tag">${esc(s)} <button style="border:0;background:none" onclick="delSub(${i})">×</button></span>`).join("")||'<div class="empty">Aún no tienes asignaturas.</div>'}</div></div>`;
+}
+function addSub(){const x=document.getElementById("newSub").value.trim();if(x&&!state.subjects.includes(x)){state.subjects.push(x);save();render()}}
+function delSub(i){state.subjects.splice(i,1);save();render()}
+function notes(){
+ return top("Mis apuntes","Guarda tus propios apuntes. En una futura versión, StudyFree podrá convertirlos automáticamente en preguntas.")+
+ `<div class="grid2"><div class="card"><h2>Nuevo apunte</h2><label>Título<input id="nt" placeholder="Tema"></label><label>Asignatura<select id="ns">${state.subjects.map(s=>`<option>${esc(s)}</option>`).join("")}</select></label><label>Contenido<textarea id="nc" rows="7" placeholder="Escribe tus apuntes..."></textarea></label><button class="btn" onclick="addNote()">Guardar apunte</button></div>
+ <div class="card"><h2>Guardados</h2>${state.notes.length?state.notes.map((n,i)=>`<div class="item"><b>${esc(n.title)}</b><div class="small muted">${esc(n.subject)}</div><p>${esc(n.content).slice(0,180)}${n.content.length>180?"…":""}</p><button class="btn danger" onclick="delNote(${i})">Borrar</button></div>`).join(""):'<div class="empty">Todavía no has guardado apuntes.</div>'}</div></div>`;
+}
+function addNote(){const title=document.getElementById("nt").value.trim(),content=document.getElementById("nc").value.trim(),subject=document.getElementById("ns").value;if(title&&content){state.notes.unshift({title,content,subject});save();render()}}
+function delNote(i){state.notes.splice(i,1);save();render()}
+function exams(){
+ let groups={};exams.forEach(e=>(groups[e[0]]??=[]).push(e));
+ return top("Biblioteca de exámenes","Elige un examen o crea uno personalizado.")+
+ `<div class="grid2">${Object.entries(groups).map(([g,arr])=>`<div class="card"><h2>${g}</h2>${arr.map(e=>`<div class="item exam-card"><div><b>${esc(e[1])}</b><div class="muted">${esc(e[2])}</div></div><button class="btn" onclick="startExam('${js(e[0])}','${js(e[1])}',10)">Practicar</button></div>`).join("")}</div>`).join("")}</div>
+ <div class="section card"><h2>⚠️ Importante</h2><p class="muted">Esta versión usa preguntas originales de demostración. No copia ni reproduce bancos de preguntas oficiales de exámenes propietarios.</p></div>`;
+}
+function create(){
+ return top("Crear examen","Define tu objetivo y empieza a practicar.")+
+ `<div class="card"><div class="formgrid">
+ <label>Tipo de examen<select id="ct">${exams.map(e=>`<option>${esc(e[0]+" — "+e[1])}</option>`).join("")}</select></label>
+ <label>Asignatura<select id="cs">${state.subjects.map(s=>`<option>${esc(s)}</option>`).join("")}</select></label>
+ <label>Nota objetivo (0–100)<input id="target" type="number" min="0" max="100" value="90"></label>
+ <label>Número de preguntas<select id="qn"><option>4</option><option>10</option><option>20</option></select></label>
+ </div><button class="btn" onclick="createGoal()">Guardar objetivo y empezar</button></div>
+ <div class="section card"><h2>Ejemplo</h2><p class="muted">Puedes ponerte un objetivo como 90/100, seleccionar Química y practicar hasta detectar qué temas necesitas reforzar.</p></div>`;
+}
+function createGoal(){const [type,name]=document.getElementById("ct").value.split(" — ");const goal={type,name,subject:document.getElementById("cs").value,target:+document.getElementById("target").value};state.goals.push(goal);save();startExam(type,name,+document.getElementById("qn").value)}
+function startExam(type,name,count){state.exam={type,name,count};state.answers=[];state.qIndex=0;state.view="exam";save();render()}
+function exam(){
+ const q=demoQuestions[state.qIndex%demoQuestions.length], answered=state.answers[state.qIndex];
+ return top(`${esc(state.exam.name)}`,`${esc(state.exam.type)} · Pregunta ${state.qIndex+1} de ${state.exam.count}`)+
+ `<div class="card"><div class="progress"><div style="width:${state.qIndex/state.exam.count*100}%"></div></div><div class="question">${esc(q.q)}</div>${q.opts.map((o,i)=>`<button class="option ${answered!==undefined?(i===q.a?"correct":i===answered?"wrong":""):""}" ${answered!==undefined?"disabled":""} onclick="answer(${i})">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join("")}${answered!==undefined?`<div class="feedback"><b>${answered===q.a?"✅ Correcto":"❌ A revisar"}</b><p>${esc(q.why)}</p><b>💡 Truco:</b> ${esc(q.tip)}</div><div class="actions"><button class="btn" onclick="nextQ()">${state.qIndex+1>=state.exam.count?"Ver resultado":"Siguiente"}</button></div>`:""}</div>`;
+}
+function answer(i){state.answers[state.qIndex]=i;save();render()}
+function nextQ(){if(state.qIndex+1>=state.exam.count){finishExam()}else{state.qIndex++;save();render()}}
+function finishExam(){let correct=0;for(let i=0;i<state.exam.count;i++)if(state.answers[i]===demoQuestions[i%demoQuestions.length].a)correct++;let pct=Math.round(correct/state.exam.count*100);let weak=[];for(let i=0;i<state.exam.count;i++)if(state.answers[i]!==demoQuestions[i%demoQuestions.length].a)weak.push(demoQuestions[i%demoQuestions.length].topic);state.results.unshift({name:state.exam.name,type:state.exam.type,pct,correct,total:state.exam.count,weak:[...new Set(weak)],date:new Date().toLocaleDateString("es-ES")});state.view="result";save();render()}
+function result(){const r=state.results[0];return top("Resultado","Aquí empieza la parte importante: saber qué mejorar.")+
+ `<div class="grid"><div class="card"><div class="muted">Resultado</div><div class="stat">${r.pct}%</div></div><div class="card"><div class="muted">Correctas</div><div class="stat">${r.correct}/${r.total}</div></div><div class="card"><div class="muted">Temas a reforzar</div><div class="stat">${r.weak.length}</div></div><div class="card"><div class="muted">Objetivo</div><div class="stat">${goalFor(r)}%</div></div></div>
+ <div class="section grid2"><div class="card"><h2>🔎 Tus puntos débiles</h2>${r.weak.length?r.weak.map(x=>`<div class="item"><b>${esc(x)}</b><p class="muted">Haz una explicación y 5 preguntas específicas sobre este tema.</p></div>`).join(""):"<p>¡No se han detectado errores en esta demo!</p>"}</div>
+ <div class="card"><h2>🤖 Ayuda inteligente</h2><p class="muted">En esta versión pública la IA está preparada como módulo de interfaz. Para conectar un modelo real haría falta un backend seguro.</p><button class="btn" onclick="go('ai')">Ver StudyFree AI</button></div></div>`;
+}
+function goalFor(r){const g=state.goals.find(x=>x.name===r.name);return g?g.target:90}
+function progress(){
+ let avg=state.results.length?Math.round(state.results.reduce((a,r)=>a+r.pct,0)/state.results.length):0;
+ return top("Mi progreso","Mide tu evolución y descubre qué estudiar después.")+
+ `<div class="card"><h2>Media general</h2><div class="stat">${avg}%</div><div class="progress"><div style="width:${avg}%"></div></div></div>
+ <div class="section grid2"><div class="card"><h2>Objetivos</h2>${state.goals.length?state.goals.map(g=>`<div class="item"><b>${esc(g.name)}</b><div class="muted">${esc(g.subject)} · objetivo ${g.target}%</div></div>`).join(""):"<div class="empty">Crea tu primer objetivo.</div>"}</div>
+ <div class="card"><h2>Resultados recientes</h2>${state.results.length?state.results.slice(0,10).map(r=>`<div class="item"><b>${esc(r.name)}</b><span style="float:right"><b>${r.pct}%</b></span><div class="muted">${r.date} · ${r.correct}/${r.total}</div></div>`).join(""):"<div class="empty">Haz un examen para empezar.</div>"}</div></div>`;
+}
+function ai(){
+ return top("StudyFree AI","El futuro módulo inteligente de StudyFree.")+
+ `<div class="card"><h2>🤖 ¿Qué debería hacer?</h2><div class="grid2">
+ <div><h3>Explicar</h3><p class="muted">Explicar un concepto con palabras sencillas, con ejemplos o a nivel de examen.</p></div>
+ <div><h3>Generar preguntas</h3><p class="muted">Crear preguntas según la asignatura, dificultad y objetivo.</p></div>
+ <div><h3>Detectar debilidades</h3><p class="muted">Analizar errores y encontrar los temas que más necesitas practicar.</p></div>
+ <div><h3>Dar trucos</h3><p class="muted">Mostrar técnicas de memoria, resolución y estrategia adaptadas al examen.</p></div>
+ </div></div>
+ <div class="section card"><h2>Estado de esta versión</h2><p class="muted">La interfaz está lista, pero una IA real no debería conectarse directamente desde este HTML con una clave secreta. Para hacerlo bien, se necesita un pequeño backend que proteja la clave y gestione las peticiones.</p></div>`;
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function js(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+render();
+</script>
+</body>
+</html>
